@@ -12,6 +12,7 @@ from User_defined_Functions import first_accumulation, _equation_str, _print_err
 from scipy.integrate import odeint
 import graphviz
 import sympy as sp
+import matplotlib.pyplot as plt
 
 class Generalized_grey_model(object):
     def __init__(self,df,nf):
@@ -66,7 +67,7 @@ class Generalized_grey_model(object):
         #self.graph.view() #Output to PDF file
     def print_equation(self):
         t = sp.symbols('t')
-        x_1 = sp.Function('x^(1)')(t)
+        x_1 = sp.Function('x_1')(t)
         self.equation=sp.Eq(x_1.diff(t),sp.sympify(replace_string(self.equation_str)))
 
 if __name__ == '__main__':
@@ -80,6 +81,11 @@ if __name__ == '__main__':
     GGM.structure_identification_SG(function_set,parsimony_coefficient)
     #predict
     y_predict=GGM.predict(GGM.t)
+    plt.plot(GGM.t, GGM.y)
+    plt.plot(GGM.t, GGM.y_pre2)
+    plt.xlabel('time')
+    plt.ylabel('data')
+    plt.show()
     #error
     GGM.print_error()
     #Tree Formula Chart
