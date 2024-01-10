@@ -52,15 +52,24 @@ class Generalized_grey_model(object):
         self.print_equation()
     def f_equation(self,x_1,t):
             return eval(self.equation_str)
-    def predict(self,t):
+    def predict(self,t=None):
         # Define initial conditions
         y0 = self.x_1[0]
+        if t is not None:
+            self.t2=np.concatenate((GGM.t,t))
+        else:
+            self.t2=self.t
         # Using odeint functions to solve differential equations
-        x_1_pre = odeint(self.f_equation, y0, t)
-        self.y_pre2=np.concatenate((np.array([self.y[0]]),np.diff(x_1_pre.reshape(-1,))))
-        return self.y_pre2
+        x_1_pre = odeint(self.f_equation, y0, self.t2)
+        #The inverse operation of first-order accumulation
+        h=np.concatenate((np.array([1]),np.diff(self.t2))) #Calculate time interval, cannot appear 0
+        if np.any([h==0]):
+            print('The input timing value is incorrect')
+        else:
+            self.y_pre2=np.divide(np.concatenate((np.array([self.y[0]]),np.diff(x_1_pre.reshape(-1,)))),h)
+            return self.y_pre2
     def print_error(self):
-        _print_error(self.y,self.y_pre2,self.train_size)
+        _print_error(self.y,self.y_pre2,self.train_size,self.test_size)
     def graphviz_pdf(self):
         dot_data = self.est_gp._program.export_graphviz()
         self.graph = graphviz.Source(dot_data)
@@ -77,12 +86,14 @@ if __name__ == '__main__':
     GGM=Generalized_grey_model(df,nf)
     #training model
     function_set = ['add', 'sub', 'mul', 'div','log', 'sin','cos'] 
-    parsimony_coefficient=0.07 #Complexity penalty coefficient
+    parsimony_coefficient=0.04 #Complexity penalty coefficient
     GGM.structure_identification_SG(function_set,parsimony_coefficient)
     #predict
-    y_predict=GGM.predict(GGM.t)
+    y_predict=GGM.predict()
+    # y_predict=GGM.predict(np.array([35,36])) #define the time point of time series
+    #plot
     plt.plot(GGM.t, GGM.y)
-    plt.plot(GGM.t, GGM.y_pre2)
+    plt.plot(GGM.t2, GGM.y_pre2)
     plt.xlabel('time')
     plt.ylabel('data')
     plt.show()
@@ -93,5 +104,4 @@ if __name__ == '__main__':
     #equation
     GGM.equation
     sp.pprint(GGM.equation)
-
 

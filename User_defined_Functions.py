@@ -66,17 +66,17 @@ def _equation_str(tmp):
                 output += ', '
     return output
 
-def _print_error(y,y_pre,train_size):
+def _print_error(y,y_pre,train_size,test_size):
     print('The fitting MAE',
           mean_absolute_error(y[0:train_size], y_pre[0:train_size]), '\n'
           'The fitting MAPE',
           mean_absolute_percentage_error(y[0:train_size], y_pre[0:train_size]),'\n'
           'The forecasting MAE',
-          mean_absolute_error(y[train_size:], y_pre[train_size:]), '\n'
+          mean_absolute_error(y[train_size:], y_pre[train_size:train_size+test_size]), '\n'
           'The forecasting RMSE',
-          np.sqrt(mean_squared_error(y[train_size:], y_pre[train_size:])), '\n'
+          np.sqrt(mean_squared_error(y[train_size:], y_pre[train_size:train_size+test_size])), '\n'
           'The forecasting MAPE',
-          mean_absolute_percentage_error(y[train_size:], y_pre[train_size:])
+          mean_absolute_percentage_error(y[train_size:], y_pre[train_size:train_size+test_size])
       )
 
 def NIP_accumulation(y, t, n, r):
